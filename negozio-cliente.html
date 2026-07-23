@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>G&L Studio - Negozio Cliente</title>
+<title>PHOTOManager2026 - Negozio Cliente</title>
 <link rel="stylesheet" href="styles.css">
 <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -37,17 +37,18 @@
 <!-- LOGIN CLIENTE -->
 <div id="loginSection" class="login-section">
 <div class="login-container">
-<h1>🛍️ Negozio Online G&L Studio</h1>
+<img src="logo.jpg" alt="Logo Studio" style="max-width:200px; margin-bottom:20px; border-radius:8px;" onerror="this.style.display='none'">
+<h1>🛍️ Negozio Online PHOTOManager2026</h1>
 <p>Inserisci il tuo codice cliente per accedere</p>
 <form id="clientLoginForm">
 <div class="form-group">
 <label>Codice Cliente:</label>
-<input type="text" id="clientCode" placeholder="Es: GL-ABC123" required>
+<input type="text" id="clientCode" placeholder="Es: PM-ABC123" required autocomplete="off">
 </div>
-<button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:16px"> Accedi al Negozio</button>
+<button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:16px">Accedi al Negozio</button>
 </form>
 <div id="loginError" class="error-message"></div>
-<p style="margin-top:20px;font-size:14px;color:#666">Non hai un codice? <a href="mailto:weddinggel@aruba.it" style="color:#667eea">Contattaci</a></p>
+<p style="margin-top:20px;font-size:14px;color:#666">Non hai un codice? <a href="mailto:photomanager2026@hotmail.com" style="color:#667eea">Contattaci</a></p>
 <p style="margin-top:15px"><a href="index.html" style="color:#667eea">← Torna alla pagina iniziale</a></p>
 </div>
 </div>
@@ -60,7 +61,7 @@
 </header>
 <div class="client-view">
 <div class="panel">
-<h2> Le Tue Foto - Organizzate per Cartelle</h2>
+<h2>📸 Le Tue Foto - Organizzate per Cartelle</h2>
 <div class="info-box">
 <strong>ℹ️ Come ordinare:</strong><br>
 1. Sfoglia le foto organizzate per cartelle<br>
@@ -81,10 +82,10 @@
 Il ritiro dei prodotti avviene presso il nostro Studio.<br>
 ⚠️ Eventuali spedizioni sono a carico del cliente.<br>
 <div class="studio-address">
-<strong>G&L Studio</strong><br>
-Via Ciarrocco, 21 – Canicattì (AG)<br>
-Tel: 3206337370 - 3669381103<br>
-Email: weddinggel@aruba.it
+<strong>PHOTOManager2026</strong><br>
+Indirizzo dello Studio<br>
+Tel: 000 0000000<br>
+Email: photomanager2026@hotmail.com
 </div>
 </div>
 <button class="btn btn-success" onclick="completeOrder()" style="width:100%;padding:15px;font-size:18px;margin-top:15px">✅ Completa Ordine</button>
@@ -112,7 +113,7 @@ Email: weddinggel@aruba.it
 <div id="successScreen" class="success-screen" style="display:none">
 <div class="success-icon">✅</div>
 <h2>Ordine Inviato con Successo!</h2>
-<p class="thanks-message">Grazie per aver scelto G&L Studio!<br>Il tuo ordine è stato registrato correttamente.</p>
+<p class="thanks-message">Grazie per aver scelto PHOTOManager2026!<br>Il tuo ordine è stato registrato correttamente.</p>
 <div class="order-summary">
 <h3>📋 Riepilogo Ordine</h3>
 <p><strong>Numero Ordine:</strong> <span id="successOrderId"></span></p>
@@ -124,19 +125,19 @@ Email: weddinggel@aruba.it
 <h3>💳 Paga ora con PayPal</h3>
 <p>Clicca il pulsante per completare il pagamento in sicurezza:</p>
 <a id="paypalLink" href="#" target="_blank" class="paypal-btn">💳 Paga con PayPal</a>
-<p style="font-size:13px;color:#666;margin-top:10px">Verrai reindirizzato a PayPal per pagare l'importo di <strong>€ <span id="paypalAmount"></span></strong> all'indirizzo:<br><strong>mairaluigi@hotmail.it</strong></p>
+<p style="font-size:13px;color:#666;margin-top:10px">Verrai reindirizzato a PayPal per pagare l'importo di <strong>€ <span id="paypalAmount"></span></strong> all'indirizzo:<br><strong>photomanager2026@hotmail.com</strong></p>
 </div>
 <div class="contact-info">
-<h3> Contatta lo Studio</h3>
+<h3>📞 Contatta lo Studio</h3>
 <p><strong>Grazie per il tuo ordine!</strong></p>
 <p>Lo studio ti contatterà presto per:</p>
 <p>✅ Confermare la disponibilità dei prodotti</p>
 <p>✅ Concordare i tempi di consegna</p>
 <p>✅ Organizzare il ritiro in studio</p>
 <p style="margin-top:15px"><strong>Per informazioni immediate:</strong></p>
-<p>📞 Tel: 3206337370 - 3669381103</p>
-<p>📧 Email: weddinggel@aruba.it</p>
-<p>📍 Via Ciarrocco, 21 – Canicattì (AG)</p>
+<p>📞 Tel: 000 0000000</p>
+<p>📧 Email: photomanager2026@hotmail.com</p>
+<p>📍 Indirizzo dello Studio</p>
 <p style="margin-top:15px;font-size:13px;color:#666">⚠️ Eventuali spedizioni sono a carico del cliente.</p>
 </div>
 <button class="btn btn-primary" onclick="location.reload()" style="margin-top:20px">🔄 Torna all'inizio</button>
@@ -182,7 +183,7 @@ function openProductModal(photoUrl, photoName, albumName) {
     document.getElementById('modalPhotoPreview').src = photoUrl;
     const db = getShopDB();
     const categories = ['stampa', 'tele', 'forex', 'gadget', 'plex'];
-    const catLabels = { stampa: '🖼️ Stampe', tele: '🖼️ Tele', forex: '🖼️ Forex', gadget: ' Gadget', plex: '🖼️ Plexiglass' };
+    const catLabels = { stampa: '🖼️ Stampe', tele: '🖼️ Tele', forex: '🖼️ Forex', gadget: '🎁 Gadget', plex: '🖼️ Plexiglass' };
     let html = '';
     categories.forEach(function(cat) {
         const products = db.products.filter(function(p) { return p.category === cat; });
@@ -270,14 +271,14 @@ function completeOrder() {
     db.orders.push(order);
     saveShopDB(db);
     
-    // ✅ PDF PROFESSIONALE PER LO STUDIO (grafica migliorata)
+    // ✅ PDF PROFESSIONALE PER LO STUDIO
     generateProfessionalPDF(order);
     
     // ✅ LINK PAYPAL CON LA TUA EMAIL
-    const paypalEmail = 'mairaluigi@hotmail.it';
-    const paypalUrl = 'https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=' + encodeURIComponent(paypalEmail) + '&currency_code=EUR&amount=' + total.toFixed(2) + '&item_name=Ordine_G_Studio_' + orderId;
+    const paypalEmail = 'photomanager2026@hotmail.com';
+    const paypalUrl = 'https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=' + encodeURIComponent(paypalEmail) + '&currency_code=EUR&amount=' + total.toFixed(2) + '&item_name=Ordine_PHOTOManager2026_' + orderId;
     
-    // ✅ Mostra schermata successo (SOLO MESSAGGIO RINGRAZIAMENTO)
+    // ✅ Mostra schermata successo
     document.getElementById('clientSection').style.display = 'none';
     document.getElementById('successScreen').style.display = 'block';
     document.getElementById('successOrderId').textContent = orderId;
@@ -314,15 +315,15 @@ function generateProfessionalPDF(order) {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
-    doc.text('G&L Studio', 105, 22, { align: 'center' });
+    doc.text('PHOTOManager2026', 105, 22, { align: 'center' });
     
     doc.setFontSize(13);
     doc.setFont('helvetica', 'normal');
     doc.text('Negozio Online - Ordine di Acquisto', 105, 30, { align: 'center' });
     
     doc.setFontSize(11);
-    doc.text('Via Ciarrocco 21, Canicattì (AG)', 105, 38, { align: 'center' });
-    doc.text('Tel: 3206337370 - 3669381103 | Email: weddinggel@aruba.it', 105, 44, { align: 'center' });
+    doc.text('Indirizzo dello Studio', 105, 38, { align: 'center' });
+    doc.text('Tel: 000 0000000 | Email: photomanager2026@hotmail.com', 105, 44, { align: 'center' });
     
     // Informazioni ordine
     doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
@@ -442,9 +443,9 @@ function generateProfessionalPDF(order) {
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     doc.text('Il ritiro avviene presso il nostro Studio:', 25, infoY + 13);
-    doc.text('Via Ciarrocco, 21 – Canicattì (AG)', 25, infoY + 21);
-    doc.text('Tel: 3206337370 - 3669381103', 25, infoY + 29);
-    doc.text('Email: weddinggel@aruba.it', 25, infoY + 37);
+    doc.text('Indirizzo dello Studio', 25, infoY + 21);
+    doc.text('Tel: 000 0000000', 25, infoY + 29);
+    doc.text('Email: photomanager2026@hotmail.com', 25, infoY + 37);
     doc.setFont('helvetica', 'italic');
     doc.text('⚠️ Eventuali spedizioni sono a carico del cliente.', 25, infoY + 45);
     
@@ -457,7 +458,7 @@ function generateProfessionalPDF(order) {
     doc.setTextColor(150, 150, 150);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'italic');
-    doc.text('G&L Studio - Tutti i diritti riservati', 105, footerY + 7, { align: 'center' });
+    doc.text('PHOTOManager2026 - Tutti i diritti riservati', 105, footerY + 7, { align: 'center' });
     doc.text('Documento generato automaticamente il ' + new Date().toLocaleString('it-IT'), 105, footerY + 12, { align: 'center' });
     
     // Salva PDF
