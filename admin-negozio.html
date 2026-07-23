@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Negozio G&L Studio</title>
+<title>Admin - Negozio PHOTOManager2026</title>
 <link rel="stylesheet" href="styles.css">
 <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <style>
 .login-container{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px}
-.login-box{background:#fff;padding:40px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:500px;width:100%}
+.login-box{background:#fff;padding:40px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:500px;width:100%;text-align:center}
 .login-box h1{color:#2c3e50;margin-bottom:10px;text-align:center}
 .login-box p{color:#666;margin-bottom:30px;text-align:center}
 .form-group{margin-bottom:20px}
@@ -28,12 +28,13 @@
 
 <div id="loginSection" class="login-container">
 <div class="login-box">
+<img src="logo.jpg" alt="Logo Studio" style="max-width:200px; margin-bottom:20px; border-radius:8px;" onerror="this.style.display='none'">
 <h1>⚙️ Area Admin - Negozio</h1>
 <p>Inserisci la password per accedere</p>
 <form id="adminLoginForm">
 <div class="form-group">
 <label>Password:</label>
-<input type="password" id="adminPassword" placeholder="Password admin" required>
+<input type="password" id="adminPassword" placeholder="Password admin" required autocomplete="new-password">
 </div>
 <button type="submit" class="btn-login">🔐 Accedi</button>
 <div id="loginError" class="error-message"></div>
@@ -47,7 +48,7 @@
 <div id="adminSection" style="display:none">
 <header class="main-header">
 <h1>⚙️ Dashboard Admin - Negozio</h1>
-<p>G&L Studio - Gestione completa</p>
+<p>PHOTOManager2026 - Gestione completa</p>
 </header>
 <nav class="main-nav">
 <button class="nav-btn active" onclick="showTab('clienti')">👥 Clienti</button>
@@ -64,9 +65,9 @@
 // ============================================
 // CONFIGURAZIONE
 // ============================================
-const SHOP_DB_KEY = 'gl_negozio_db';
-const SHOP_LINK = window.location.origin + '/NEGOZIO-SINGOLO/negozio-cliente.html';
-const ADMIN_PASSWORD = '12763Mlg';
+const SHOP_DB_KEY = 'pm_negozio_db';
+const SHOP_LINK = window.location.origin + '/PHOTOManager2026-Negozio/negozio-cliente.html';
+const ADMIN_PASSWORD = 'photo2026';
 
 // ============================================
 // DATABASE
@@ -133,11 +134,11 @@ function renderNegozioSection() {
         '<button onclick="copyShopLink(this)">📋 Copia Link</button></div>' +
         '<div class="tabs">' +
         '<button class="tab-btn active" onclick="showShopTab(\'clienti\', this)">👥 Clienti</button>' +
-        '<button class="tab-btn" onclick="showShopTab(\'prodotti\', this)">️ Prodotti</button>' +
+        '<button class="tab-btn" onclick="showShopTab(\'prodotti\', this)">🛍️ Prodotti</button>' +
         '<button class="tab-btn" onclick="showShopTab(\'ordini\', this)">📋 Ordini</button></div>' +
         '<div id="shop-tab-clienti" class="tab-content active">' +
         '<div class="shop-card"><h2>➕ Crea Nuovo Negozio per Cliente</h2>' +
-        '<div class="info-box"><strong>ℹ️ Come funziona:</strong><br>Inserisci il nome del cliente. Il sistema genera un <strong>Codice Cliente univoco</strong> (es: GL-ABC123).</div>' +
+        '<div class="info-box"><strong>ℹ️ Come funziona:</strong><br>Inserisci il nome del cliente. Il sistema genera un <strong>Codice Cliente univoco</strong> (es: PM-ABC123).</div>' +
         '<div class="form-row"><div class="form-group"><label>Nome Cliente:</label><input type="text" id="newClientName" placeholder="Es. Mario e Lucia Rossi"></div>' +
         '<div class="form-group"><label>Email (opzionale):</label><input type="email" id="newClientEmail" placeholder="email@esempio.it"></div></div>' +
         '<button class="btn btn-success" onclick="createShopClient()">✅ Crea Negozio e Genera Codice</button></div>' +
@@ -193,7 +194,7 @@ function showTab(tab) {
 // ============================================
 function generateShopClientCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = 'GL-';
+    let code = 'PM-';
     for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
     return code;
 }
@@ -371,7 +372,7 @@ function clearShopProductForm() {
 }
 
 function getShopCategoryLabel(cat) {
-    const labels = { stampa: '🖼️ Stampa', gadget: '🎁 Gadget', tele: '️ Tela', forex: '🖼️ Forex', plex: '🖼️ Plexiglass' };
+    const labels = { stampa: '🖼️ Stampa', gadget: '🎁 Gadget', tele: '🖼️ Tela', forex: '🖼️ Forex', plex: '🖼️ Plexiglass' };
     return labels[cat] || cat;
 }
 
@@ -435,7 +436,7 @@ function copyToClipboard(text, btnElement) {
 }
 
 function copyShopLink(btn) { copyToClipboard(SHOP_LINK, btn); }
-function copyShopClientCode(code, btn) { copyToClipboard('Ciao! Ecco il tuo codice per accedere al negozio G&L Studio:\n\nCodice: ' + code + '\n\nLink: ' + SHOP_LINK, btn); }
+function copyShopClientCode(code, btn) { copyToClipboard('Ciao! Ecco il tuo codice per accedere al negozio PHOTOManager2026:\n\nCodice: ' + code + '\n\nLink: ' + SHOP_LINK, btn); }
 function copyShopLinkForClient(code, btn) { copyToClipboard(SHOP_LINK, btn); }
 
 // ============================================
@@ -480,7 +481,7 @@ function exportShopOrdersPDF() {
     const doc = new jsPDF();
     doc.setFontSize(20);
     doc.setTextColor(102, 126, 234);
-    doc.text('G&L Studio - Report Ordini Negozio', 14, 20);
+    doc.text('PHOTOManager2026 - Report Ordini Negozio', 14, 20);
     doc.setFontSize(11);
     doc.setTextColor(100);
     doc.text('Data: ' + new Date().toLocaleString('it-IT'), 14, 30);
@@ -505,7 +506,7 @@ function loadShopOrders() {
         return;
     }
     container.innerHTML = db.orders.slice().reverse().map(function(order) {
-        return '<div class="order-card"><div class="order-header"><div><div class="order-number">' + order.id + '</div><div style="color:#666;font-size:13px">' + order.date + '</div></div><div style="text-align:right"><div style="font-weight:bold">' + order.clientName + '</div><div style="color:#666;font-size:13px">' + order.clientCode + '</div><div style="color:#667eea;font-size:13px">' + order.items.length + ' prodotti</div></div></div><div>' + order.items.map(function(item) { return '<div class="order-item-row"><span><strong>' + item.productName + '</strong> [' + getShopCategoryLabel(item.productCategory) + ']' + (item.size ? ' (' + item.size + ')' : '') + (item.color ? ' - ' + item.color : '') + '<br><small style="color:#666">📁 ' + (item.albumName || '-') + ' • Foto: ' + item.photoName + '</small></span><span style="font-weight:bold;color:#e74c3c">€' + item.price.toFixed(2) + '</span></div>'; }).join('') + '</div><div class="order-total">Totale: €' + order.total.toFixed(2) + '</div><div class="order-actions"><button class="btn btn-sm btn-primary" onclick="downloadShopOrderPDF(\'' + order.id + '\')"> PDF</button><button class="btn btn-sm btn-success" onclick="downloadShopOrderGru(\'' + order.id + '\')">📝 File Gru</button><button class="btn btn-sm btn-warning" onclick="markShopOrderDone(\'' + order.id + '\')">✅ Completato</button><button class="btn btn-sm btn-danger" onclick="deleteShopOrder(\'' + order.id + '\')">🗑️ Elimina</button></div></div>';
+        return '<div class="order-card"><div class="order-header"><div><div class="order-number">' + order.id + '</div><div style="color:#666;font-size:13px">' + order.date + '</div></div><div style="text-align:right"><div style="font-weight:bold">' + order.clientName + '</div><div style="color:#666;font-size:13px">' + order.clientCode + '</div><div style="color:#667eea;font-size:13px">' + order.items.length + ' prodotti</div></div></div><div>' + order.items.map(function(item) { return '<div class="order-item-row"><span><strong>' + item.productName + '</strong> [' + getShopCategoryLabel(item.productCategory) + ']' + (item.size ? ' (' + item.size + ')' : '') + (item.color ? ' - ' + item.color : '') + '<br><small style="color:#666">📁 ' + (item.albumName || '-') + ' • Foto: ' + item.photoName + '</small></span><span style="font-weight:bold;color:#e74c3c">€' + item.price.toFixed(2) + '</span></div>'; }).join('') + '</div><div class="order-total">Totale: €' + order.total.toFixed(2) + '</div><div class="order-actions"><button class="btn btn-sm btn-primary" onclick="downloadShopOrderPDF(\'' + order.id + '\')">📄 PDF</button><button class="btn btn-sm btn-success" onclick="downloadShopOrderGru(\'' + order.id + '\')">📝 File Gru</button><button class="btn btn-sm btn-warning" onclick="markShopOrderDone(\'' + order.id + '\')">✅ Completato</button><button class="btn btn-sm btn-danger" onclick="deleteShopOrder(\'' + order.id + '\')">🗑️ Elimina</button></div></div>';
     }).join('');
 }
 
@@ -516,7 +517,7 @@ function downloadShopOrderPDF(orderId) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(22);
-    doc.text('G&L Studio - Ordine Negozio', 20, 25);
+    doc.text('PHOTOManager2026 - Ordine Negozio', 20, 25);
     doc.setFontSize(12);
     doc.text('Ordine N.: ' + order.id, 20, 40);
     doc.text('Cliente: ' + order.clientName, 20, 50);
@@ -603,7 +604,7 @@ window.doLogout = doLogout;
 // INIT
 // ============================================
 checkLoginStatus();
-console.log('✅ Admin Negozio caricato con successo!');
+console.log('✅ Admin Negozio PHOTOManager2026 caricato con successo!');
 </script>
 </body>
 </html>
