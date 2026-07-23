@@ -1,0 +1,14 @@
+# File di sistema
+.DS_Store
+Thumbs.db
+
+# File temporanei
+*.tmp
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Backup locali
+backup_*.json
