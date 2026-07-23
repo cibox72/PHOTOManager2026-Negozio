@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Negozio G&L Studio</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<style>
+.login-container{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px}
+.login-box{background:#fff;padding:40px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:500px;width:100%}
+.login-box h1{color:#2c3e50;margin-bottom:10px;text-align:center}
+.login-box p{color:#666;margin-bottom:30px;text-align:center}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;margin-bottom:8px;color:#555;font-weight:600}
+.form-group input{width:100%;padding:14px;border:2px solid #ddd;border-radius:8px;font-size:16px}
+.form-group input:focus{outline:none;border-color:#667eea}
+.btn-login{width:100%;padding:14px;background:#667eea;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer}
+.btn-login:hover{background:#5568d3}
+.error-message{color:#e74c3c;margin-top:15px;text-align:center;font-weight:600}
+.back-link{text-align:center;margin-top:20px}
+.back-link a{color:#667eea;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div id="loginSection" class="login-container">
+<div class="login-box">
+<h1>⚙️ Area Admin - Negozio</h1>
+<p>Inserisci la password per accedere</p>
+<form id="adminLoginForm">
+<div class="form-group">
+<label>Password:</label>
+<input type="password" id="adminPassword" placeholder="Password admin" required>
+</div>
+<button type="submit" class="btn-login">🔐 Accedi</button>
+<div id="loginError" class="error-message"></div>
+</form>
+<div class="back-link">
+<a href="negozio-cliente.html">← Torna al negozio</a>
+</div>
+</div>
+</div>
+
+<div id="adminSection" style="display:none">
+<header class="main-header">
+<h1>⚙️ Dashboard Admin - Negozio</h1>
+<p>G&L Studio - Gestione completa</p>
+</header>
+<nav class="main-nav">
+<button class="nav-btn active" onclick="showTab('clienti')">👥 Clienti</button>
+<button class="nav-btn" onclick="showTab('prodotti')">🛍️ Prodotti</button>
+<button class="nav-btn" onclick="showTab('ordini')">📋 Ordini</button>
+<button class="logout-btn" onclick="doLogout()">🚪 Esci</button>
+</nav>
+<div class="container">
+<div id="negozio"></div>
+</div>
+</div>
+
+<script>
+// ============================================
+// CONFIGURAZIONE
+// ============================================
+const SHOP_DB_KEY = 'gl_negozio_db';
+const SHOP_LINK = window.location.origin + '/NEGOZIO-SINGOLO/negozio-cliente.html';
+const ADMIN_PASSWORD = '12763Mlg';
+
+// ============================================
+// DATABASE
+// ============================================
+function getShopDB() {
+    try {
+        const d = JSON.parse(localStorage.getItem(SHOP_DB_KEY));
+        if (d) return d;
+    } catch (e) {}
+    return { clients: [], products: [], orders: [] };
+}
+
+function saveShopDB(db) {
+    localStorage.setItem(SHOP_DB_KEY, JSON.stringify(db));
+}
+
+// ============================================
+// LOGIN
+// ============================================
+document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const pass = document.getElementById('adminPassword').value;
+    if (pass === ADMIN_PASSWORD) {
+        localStorage.setItem('negozio_admin_logged', 'true');
+        showAdminDashboard();
+    } else {
+        document.getElementById('loginError').textContent = '❌ Password errata!';
+    }
+});
+
+function showAdminDashboard() {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('adminSection').style.display = 'block';
+    renderNegozioSection();
+}
+
+function doLogout() {
+    localStorage.removeItem('negozio_admin_logged');
+    location.reload();
+}
+
+function checkLoginStatus() {
+    if (localStorage.getItem('negozio_admin_logged') === 'true') {
+        showAdminDashboard();
+    }
+}
+
+// ============================================
+// RENDER NEGOZIO
+// ============================================
+function renderNegozioSection() {
+    const container = document.getElementById('negozio');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="shop-container">' +
+        '<div class="shop-header"><h1>🛍️ Negozio Online - Admin</h1><p>Gestione clienti, prodotti e ordini</p></div>' +
+        '<div class="backup-bar"><strong>💾 Backup & Ripristino:</strong>' +
+        '<button class="btn btn-success btn-sm" onclick="backupShopData()">📥 Scarica Backup</button>' +
+        '<button class="btn btn-warning btn-sm" onclick="document.getElementById(\'shopRestoreFile\').click()">🔄 Ripristina</button>' +
+        '<input type="file" id="shopRestoreFile" accept=".json" style="display:none" onchange="restoreShopData(this)">' +
+        '<button class="btn btn-info btn-sm" onclick="exportShopOrdersPDF()">📄 Esporta Ordini PDF</button></div>' +
+        '<div class="shop-link-bar"><strong>🔗 Link Negozio (da inviare ai clienti):</strong>' +
+        '<input type="text" value="' + SHOP_LINK + '" readonly>' +
+        '<button onclick="copyShopLink(this)">📋 Copia Link</button></div>' +
+        '<div class="tabs">' +
+        '<button class="tab-btn active" onclick="showShopTab(\'clienti\', this)">👥 Clienti</button>' +
+        '<button class="tab-btn" onclick="showShopTab(\'prodotti\', this)">️ Prodotti</button>' +
+        '<button class="tab-btn" onclick="showShopTab(\'ordini\', this)">📋 Ordini</button></div>' +
+        '<div id="shop-tab-clienti" class="tab-content active">' +
+        '<div class="shop-card"><h2>➕ Crea Nuovo Negozio per Cliente</h2>' +
+        '<div class="info-box"><strong>ℹ️ Come funziona:</strong><br>Inserisci il nome del cliente. Il sistema genera un <strong>Codice Cliente univoco</strong> (es: GL-ABC123).</div>' +
+        '<div class="form-row"><div class="form-group"><label>Nome Cliente:</label><input type="text" id="newClientName" placeholder="Es. Mario e Lucia Rossi"></div>' +
+        '<div class="form-group"><label>Email (opzionale):</label><input type="email" id="newClientEmail" placeholder="email@esempio.it"></div></div>' +
+        '<button class="btn btn-success" onclick="createShopClient()">✅ Crea Negozio e Genera Codice</button></div>' +
+        '<div class="shop-card"><h2>👥 Clienti Registrati</h2><div id="shopClientsList" class="client-grid"></div></div>' +
+        '<div class="shop-card"><h2>📸 Carica Foto per Cliente (con Album/Cartelle)</h2>' +
+        '<div class="info-box"><strong>📁 Come organizzare le foto in cartelle:</strong><br>1. Seleziona il cliente<br>2. Scrivi il nome dell\'album<br>3. Clicca "Apri Widget" e carica le foto<br>4. Clicca "Salva Foto"<br>5. Ripeti per ogni cartella</div>' +
+        '<div class="form-row"><div class="form-group"><label>Seleziona Cliente:</label><select id="shopPhotoClientSelect"></select></div>' +
+        '<div class="form-group"><label>Nome Album/Cartella:</label><input type="text" id="shopAlbumName" placeholder="Es: Casa Sposo, Chiesa..."></div></div>' +
+        '<div class="form-group"><label>Cloud Name Cloudinary:</label><input type="text" id="shopCloudName" value="g3439ih4"></div>' +
+        '<button class="btn btn-primary" onclick="openShopUploadWidget()">📂 Apri Widget Upload</button>' +
+        '<div id="shopUploadStatus" style="margin-top:15px"></div>' +
+        '<button class="btn btn-success" id="shopSavePhotosBtn" onclick="saveShopClientPhotos()" style="display:none">💾 Salva Foto nell\'Album</button></div></div>' +
+        '<div id="shop-tab-prodotti" class="tab-content">' +
+        '<div class="shop-card"><h2>➕ Aggiungi/Modifica Prodotto</h2>' +
+        '<div class="form-row"><div class="form-group"><label>Nome Prodotto:</label><input type="text" id="shopProdName" placeholder="Es. Stampa 20x30"></div>' +
+        '<div class="form-group"><label>Categoria:</label><select id="shopProdCategory"><option value="stampa">🖼️ Stampe</option><option value="tele">🖼️ Tele</option><option value="forex">🖼️ Forex</option><option value="gadget">🎁 Gadget</option><option value="plex">🖼️ Plexiglass</option></select></div></div>' +
+        '<div class="form-row"><div class="form-group"><label>Prezzo (€) *</label><input type="number" id="shopProdPrice" step="0.01" placeholder="0.00" style="font-size:18px;font-weight:bold;color:#e74c3c"></div>' +
+        '<div class="form-group"><label>Misura/Formato:</label><input type="text" id="shopProdSize" placeholder="Es. 20x30 cm"></div></div>' +
+        '<div class="form-group"><label>Descrizione:</label><textarea id="shopProdDesc" rows="2"></textarea></div>' +
+        '<div class="form-group"><label>Colori (separati da virgola):</label><input type="text" id="shopProdColors" placeholder="Es. Rosso, Blu, Bianco"></div>' +
+        '<div class="form-group"><label>Immagine Prodotto (URL Cloudinary):</label><input type="text" id="shopProdImage" placeholder="https://res.cloudinary.com/...">' +
+        '<button class="btn btn-sm btn-secondary" onclick="uploadShopProductImage()" style="margin-top:5px">📤 Carica Immagine</button></div>' +
+        '<div id="shopProdImagePreview" style="margin-top:10px"></div>' +
+        '<input type="hidden" id="shopEditingProductId">' +
+        '<button class="btn btn-success" onclick="saveShopProduct()">💾 Salva Prodotto</button>' +
+        '<button class="btn btn-secondary" onclick="clearShopProductForm()">🔄 Nuovo Prodotto</button></div>' +
+        '<div class="shop-card"><h2>🛍️ Prodotti Esistenti</h2><div id="shopProductsList" class="product-grid"></div></div></div>' +
+        '<div id="shop-tab-ordini" class="tab-content">' +
+        '<div class="shop-card"><h2>📋 Ordini Ricevuti</h2><div id="shopOrdersList"></div></div></div></div>';
+    
+    loadShopAdminData();
+}
+
+function showShopTab(tab, btn) {
+    document.querySelectorAll('#negozio .tab-content').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('#negozio .tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('shop-tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+}
+
+function showTab(tab) {
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    event.target.classList.add('active');
+    renderNegozioSection();
+    setTimeout(function() {
+        const tabBtn = document.querySelector('#negozio .tab-btn[onclick*="' + tab + '"]');
+        if (tabBtn) showShopTab(tab, tabBtn);
+    }, 100);
+}
+
+// ============================================
+// CLIENTI
+// ============================================
+function generateShopClientCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = 'GL-';
+    for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    return code;
+}
+
+function createShopClient() {
+    const name = document.getElementById('newClientName').value.trim();
+    const email = document.getElementById('newClientEmail').value.trim();
+    if (!name) { alert('Inserisci il nome del cliente!'); return; }
+    
+    const db = getShopDB();
+    const code = generateShopClientCode();
+    db.clients.push({
+        id: Date.now(),
+        code: code,
+        name: name,
+        email: email,
+        albums: [],
+        created: new Date().toLocaleString('it-IT')
+    });
+    saveShopDB(db);
+    alert('✅ Negozio creato!\n\nCodice Cliente: ' + code + '\n\nOra carica le foto organizzandole in album.');
+    document.getElementById('newClientName').value = '';
+    document.getElementById('newClientEmail').value = '';
+    loadShopAdminData();
+}
+
+function deleteShopClient(id) {
+    if (!confirm('Eliminare questo cliente?')) return;
+    const db = getShopDB();
+    db.clients = db.clients.filter(function(c) { return c.id !== id; });
+    saveShopDB(db);
+    loadShopAdminData();
+}
+
+let shopTempPhotos = [];
+
+function openShopUploadWidget() {
+    const clientSelect = document.getElementById('shopPhotoClientSelect');
+    const albumName = document.getElementById('shopAlbumName').value.trim();
+    if (!clientSelect.value) { alert('Seleziona prima un cliente!'); return; }
+    if (!albumName) { alert('Inserisci il nome dell\'album!'); return; }
+    
+    const cn = document.getElementById('shopCloudName').value || 'g3439ih4';
+    const widget = cloudinary.createUploadWidget({
+        cloudName: cn,
+        uploadPreset: 'unsigned',
+        sources: ['local'],
+        multiple: true
+    }, function(error, result) {
+        if (!error && result.event === 'success') {
+            shopTempPhotos.push({
+                url: result.info.secure_url,
+                publicId: result.info.public_id,
+                name: result.info.original_filename + '.' + result.info.format
+            });
+            document.getElementById('shopUploadStatus').innerHTML = '<div style="background:#e8f5e9;padding:15px;border-radius:8px;color:#27ae60;font-weight:bold">✅ ' + shopTempPhotos.length + ' foto caricate per "' + albumName + '"!</div>';
+            document.getElementById('shopSavePhotosBtn').style.display = 'block';
+        }
+    });
+    widget.open();
+}
+
+function saveShopClientPhotos() {
+    const clientId = parseInt(document.getElementById('shopPhotoClientSelect').value);
+    const albumName = document.getElementById('shopAlbumName').value.trim();
+    if (!clientId || shopTempPhotos.length === 0 || !albumName) return;
+    
+    const db = getShopDB();
+    const client = db.clients.find(function(c) { return c.id === clientId; });
+    if (client) {
+        let album = client.albums.find(function(a) { return a.name.toLowerCase() === albumName.toLowerCase(); });
+        if (album) {
+            album.photos = [...album.photos, ...shopTempPhotos];
+        } else {
+            client.albums.push({
+                id: Date.now(),
+                name: albumName,
+                photos: [...shopTempPhotos],
+                created: new Date().toLocaleString('it-IT')
+            });
+        }
+        saveShopDB(db);
+        alert('✅ ' + shopTempPhotos.length + ' foto aggiunte all\'album "' + albumName + '"!');
+        shopTempPhotos = [];
+        document.getElementById('shopUploadStatus').innerHTML = '';
+        document.getElementById('shopSavePhotosBtn').style.display = 'none';
+        document.getElementById('shopAlbumName').value = '';
+        loadShopAdminData();
+    }
+}
+
+// ============================================
+// PRODOTTI
+// ============================================
+function uploadShopProductImage() {
+    const cn = document.getElementById('shopCloudName').value || 'g3439ih4';
+    const widget = cloudinary.createUploadWidget({
+        cloudName: cn,
+        uploadPreset: 'unsigned',
+        sources: ['local'],
+        maxFiles: 1
+    }, function(error, result) {
+        if (!error && result.event === 'success') {
+            document.getElementById('shopProdImage').value = result.info.secure_url;
+            document.getElementById('shopProdImagePreview').innerHTML = '<img src="' + result.info.secure_url + '" style="max-width:200px;border-radius:8px">';
+        }
+    });
+    widget.open();
+}
+
+function saveShopProduct() {
+    const id = document.getElementById('shopEditingProductId').value;
+    const name = document.getElementById('shopProdName').value.trim();
+    const category = document.getElementById('shopProdCategory').value;
+    const price = parseFloat(document.getElementById('shopProdPrice').value);
+    const size = document.getElementById('shopProdSize').value.trim();
+    const desc = document.getElementById('shopProdDesc').value.trim();
+    const colors = document.getElementById('shopProdColors').value.split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+    const image = document.getElementById('shopProdImage').value.trim();
+    
+    if (!name || !price) { alert('Nome e Prezzo sono obbligatori!'); return; }
+    
+    const db = getShopDB();
+    const product = {
+        id: id ? parseInt(id) : Date.now(),
+        name: name,
+        category: category,
+        price: price,
+        size: size,
+        desc: desc,
+        colors: colors,
+        image: image
+    };
+    
+    if (id) {
+        const idx = db.products.findIndex(function(p) { return p.id === parseInt(id); });
+        if (idx >= 0) db.products[idx] = product;
+    } else {
+        db.products.push(product);
+    }
+    saveShopDB(db);
+    alert('✅ Prodotto salvato!');
+    clearShopProductForm();
+    loadShopAdminData();
+}
+
+function editShopProduct(id) {
+    const db = getShopDB();
+    const p = db.products.find(function(x) { return x.id === id; });
+    if (!p) return;
+    document.getElementById('shopEditingProductId').value = p.id;
+    document.getElementById('shopProdName').value = p.name;
+    document.getElementById('shopProdCategory').value = p.category;
+    document.getElementById('shopProdPrice').value = p.price;
+    document.getElementById('shopProdSize').value = p.size || '';
+    document.getElementById('shopProdDesc').value = p.desc || '';
+    document.getElementById('shopProdColors').value = (p.colors || []).join(', ');
+    document.getElementById('shopProdImage').value = p.image || '';
+    document.getElementById('shopProdImagePreview').innerHTML = p.image ? '<img src="' + p.image + '" style="max-width:200px;border-radius:8px">' : '';
+    window.scrollTo(0, 0);
+}
+
+function deleteShopProduct(id) {
+    if (!confirm('Eliminare questo prodotto?')) return;
+    const db = getShopDB();
+    db.products = db.products.filter(function(p) { return p.id !== id; });
+    saveShopDB(db);
+    loadShopAdminData();
+}
+
+function clearShopProductForm() {
+    ['shopEditingProductId', 'shopProdName', 'shopProdPrice', 'shopProdSize', 'shopProdDesc', 'shopProdColors', 'shopProdImage'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('shopProdCategory').value = 'stampa';
+    document.getElementById('shopProdImagePreview').innerHTML = '';
+}
+
+function getShopCategoryLabel(cat) {
+    const labels = { stampa: '🖼️ Stampa', gadget: '🎁 Gadget', tele: '️ Tela', forex: '🖼️ Forex', plex: '🖼️ Plexiglass' };
+    return labels[cat] || cat;
+}
+
+// ============================================
+// LOAD DATA
+// ============================================
+function loadShopAdminData() {
+    const db = getShopDB();
+    const clientsList = document.getElementById('shopClientsList');
+    if (db.clients.length === 0) {
+        clientsList.innerHTML = '<p style="color:#888;text-align:center;padding:20px;grid-column:1/-1">Nessun cliente registrato</p>';
+    } else {
+        clientsList.innerHTML = db.clients.map(function(c) {
+            let totalPhotos = 0;
+            let albumsInfo = '';
+            if (c.albums && c.albums.length > 0) {
+                c.albums.forEach(function(a) {
+                    totalPhotos += (a.photos ? a.photos.length : 0);
+                    albumsInfo += '<span class="album-tag">📁 ' + a.name + ' (' + (a.photos ? a.photos.length : 0) + ')</span>';
+                });
+            }
+            return '<div class="client-card"><h3>' + c.name + '</h3><div class="code">🔑 ' + c.code + '<button class="code-btn" onclick="copyShopClientCode(\'' + c.code + '\',this)">📋 Copia</button></div><div style="font-size:13px;color:#666">📧 ' + (c.email || 'Nessuna email') + '<br>📸 ' + totalPhotos + ' foto in ' + (c.albums ? c.albums.length : 0) + ' album<br>📅 ' + c.created + '</div><div style="margin:10px 0">' + (albumsInfo || '<em style="color:#999">Nessun album</em>') + '</div><div class="shop-link">🔗 <input type="text" value="' + SHOP_LINK + '" readonly><button onclick="copyShopLinkForClient(\'' + c.code + '\',this)">📋 Copia per cliente</button></div><div style="margin-top:10px"><button class="btn btn-sm btn-danger" onclick="deleteShopClient(' + c.id + ')">🗑️ Elimina</button></div></div>';
+        }).join('');
+    }
+    
+    const photoSelect = document.getElementById('shopPhotoClientSelect');
+    if (photoSelect) {
+        photoSelect.innerHTML = '<option value="">-- Seleziona Cliente --</option>' + db.clients.map(function(c) { return '<option value="' + c.id + '">' + c.name + ' (' + c.code + ')</option>'; }).join('');
+    }
+    
+    const productsList = document.getElementById('shopProductsList');
+    if (db.products.length === 0) {
+        productsList.innerHTML = '<p style="color:#888;text-align:center;padding:20px;grid-column:1/-1">Nessun prodotto</p>';
+    } else {
+        productsList.innerHTML = db.products.map(function(p) {
+            return '<div class="product-card">' + (p.image ? '<img src="' + p.image + '" alt="' + p.name + '">' : '') + '<div class="name">' + p.name + '</div><div class="desc">' + getShopCategoryLabel(p.category) + (p.size ? ' • ' + p.size : '') + '</div><div class="price">€ ' + p.price.toFixed(2) + '</div>' + (p.colors && p.colors.length ? '<div style="font-size:11px;color:#666">Colori: ' + p.colors.join(', ') + '</div>' : '') + '<div style="margin-top:10px"><button class="btn btn-sm btn-warning" onclick="editShopProduct(' + p.id + ')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteShopProduct(' + p.id + ')">🗑️</button></div></div>';
+        }).join('');
+    }
+    loadShopOrders();
+}
+
+// ============================================
+// COPY
+// ============================================
+function copyToClipboard(text, btnElement) {
+    navigator.clipboard.writeText(text).then(function() {
+        const t = btnElement.textContent;
+        btnElement.textContent = '✅ Copiato!';
+        setTimeout(function() { btnElement.textContent = t; }, 2000);
+    }).catch(function() {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const t = btnElement.textContent;
+        btnElement.textContent = '✅ Copiato!';
+        setTimeout(function() { btnElement.textContent = t; }, 2000);
+    });
+}
+
+function copyShopLink(btn) { copyToClipboard(SHOP_LINK, btn); }
+function copyShopClientCode(code, btn) { copyToClipboard('Ciao! Ecco il tuo codice per accedere al negozio G&L Studio:\n\nCodice: ' + code + '\n\nLink: ' + SHOP_LINK, btn); }
+function copyShopLinkForClient(code, btn) { copyToClipboard(SHOP_LINK, btn); }
+
+// ============================================
+// BACKUP
+// ============================================
+function backupShopData() {
+    const db = getShopDB();
+    db.backupDate = new Date().toLocaleString('it-IT');
+    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup_negozio_' + new Date().toISOString().split('T')[0] + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+    alert('✅ Backup negozio scaricato!');
+}
+
+function restoreShopData(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (!confirm('⚠️ Il ripristino SOSTITUIRÀ tutti i dati del negozio. Sei sicuro?')) { input.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (!data.clients || !data.products || !data.orders) throw new Error('File non valido');
+            saveShopDB(data);
+            alert('✅ Ripristino completato!');
+            location.reload();
+        } catch (err) { alert('❌ Errore: ' + err.message); }
+        input.value = '';
+    };
+    reader.readAsText(file);
+}
+
+function exportShopOrdersPDF() {
+    const db = getShopDB();
+    if (!db.orders || db.orders.length === 0) { alert('Nessun ordine'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.setTextColor(102, 126, 234);
+    doc.text('G&L Studio - Report Ordini Negozio', 14, 20);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text('Data: ' + new Date().toLocaleString('it-IT'), 14, 30);
+    doc.text('Totale ordini: ' + db.orders.length, 14, 37);
+    const tot = db.orders.reduce(function(sum, o) { return sum + o.total; }, 0);
+    doc.text('Fatturato: € ' + tot.toFixed(2), 14, 44);
+    doc.line(14, 48, 196, 48);
+    const tableData = db.orders.map(function(o) { return [o.id, o.date.split(' ')[0], o.clientName, o.clientCode, o.items.length.toString(), '€ ' + o.total.toFixed(2), o.status === 'completed' ? 'Completato' : 'In attesa']; });
+    doc.autoTable({ startY: 55, head: [['ID', 'Data', 'Cliente', 'Codice', 'Prodotti', 'Totale', 'Stato']], body: tableData, theme: 'striped', headStyles: { fillColor: [102, 126, 234], textColor: 255 } });
+    doc.save('Report_Ordini_Negozio_' + new Date().toISOString().split('T')[0] + '.pdf');
+}
+
+// ============================================
+// ORDINI
+// ============================================
+function loadShopOrders() {
+    const db = getShopDB();
+    const container = document.getElementById('shopOrdersList');
+    if (!container) return;
+    if (!db.orders || db.orders.length === 0) {
+        container.innerHTML = '<p style="color:#888;text-align:center;padding:40px">Nessun ordine ricevuto</p>';
+        return;
+    }
+    container.innerHTML = db.orders.slice().reverse().map(function(order) {
+        return '<div class="order-card"><div class="order-header"><div><div class="order-number">' + order.id + '</div><div style="color:#666;font-size:13px">' + order.date + '</div></div><div style="text-align:right"><div style="font-weight:bold">' + order.clientName + '</div><div style="color:#666;font-size:13px">' + order.clientCode + '</div><div style="color:#667eea;font-size:13px">' + order.items.length + ' prodotti</div></div></div><div>' + order.items.map(function(item) { return '<div class="order-item-row"><span><strong>' + item.productName + '</strong> [' + getShopCategoryLabel(item.productCategory) + ']' + (item.size ? ' (' + item.size + ')' : '') + (item.color ? ' - ' + item.color : '') + '<br><small style="color:#666">📁 ' + (item.albumName || '-') + ' • Foto: ' + item.photoName + '</small></span><span style="font-weight:bold;color:#e74c3c">€' + item.price.toFixed(2) + '</span></div>'; }).join('') + '</div><div class="order-total">Totale: €' + order.total.toFixed(2) + '</div><div class="order-actions"><button class="btn btn-sm btn-primary" onclick="downloadShopOrderPDF(\'' + order.id + '\')"> PDF</button><button class="btn btn-sm btn-success" onclick="downloadShopOrderGru(\'' + order.id + '\')">📝 File Gru</button><button class="btn btn-sm btn-warning" onclick="markShopOrderDone(\'' + order.id + '\')">✅ Completato</button><button class="btn btn-sm btn-danger" onclick="deleteShopOrder(\'' + order.id + '\')">🗑️ Elimina</button></div></div>';
+    }).join('');
+}
+
+function downloadShopOrderPDF(orderId) {
+    const db = getShopDB();
+    const order = db.orders.find(function(o) { return o.id === orderId; });
+    if (!order) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(22);
+    doc.text('G&L Studio - Ordine Negozio', 20, 25);
+    doc.setFontSize(12);
+    doc.text('Ordine N.: ' + order.id, 20, 40);
+    doc.text('Cliente: ' + order.clientName, 20, 50);
+    doc.text('Codice: ' + order.clientCode, 20, 60);
+    doc.text('Data: ' + order.date, 20, 70);
+    doc.line(20, 90, 190, 90);
+    doc.setFontSize(14);
+    doc.text('Prodotti ordinati:', 20, 105);
+    let y = 115;
+    doc.setFontSize(11);
+    order.items.forEach(function(item, i) {
+        doc.text((i + 1) + '. ' + item.productName + ' [' + getShopCategoryLabel(item.productCategory) + ']', 25, y);
+        if (item.albumName) doc.text('   Album: ' + item.albumName, 25, y + 6);
+        if (item.size) doc.text('   Misura: ' + item.size, 25, y + (item.albumName ? 12 : 6));
+        if (item.color) doc.text('   Colore: ' + item.color, 25, y + (item.albumName ? 18 : 12));
+        doc.text('   Foto: ' + item.photoName, 25, y + (item.color ? (item.albumName ? 24 : 18) : (item.albumName ? 12 : 6)));
+        doc.text('   Prezzo: € ' + item.price.toFixed(2), 25, y + (item.color ? (item.albumName ? 30 : 24) : (item.albumName ? 18 : 12)));
+        y += 40;
+        if (y > 270) { doc.addPage(); y = 20; }
+    });
+    doc.line(20, y, 190, y);
+    doc.setFontSize(18);
+    doc.setTextColor(231, 76, 60);
+    doc.text('TOTALE: € ' + order.total.toFixed(2), 20, y + 15);
+    doc.save('ORDINE_' + order.id + '.pdf');
+}
+
+function downloadShopOrderGru(orderId) {
+    const db = getShopDB();
+    const order = db.orders.find(function(o) { return o.id === orderId; });
+    if (!order) return;
+    const content = order.items.map(function(item) { return item.photoName; }).join('\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'GRU_' + order.id + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function markShopOrderDone(orderId) {
+    const db = getShopDB();
+    const order = db.orders.find(function(o) { return o.id === orderId; });
+    if (order) { order.status = 'completed'; saveShopDB(db); loadShopOrders(); alert('✅ Ordine completato!'); }
+}
+
+function deleteShopOrder(orderId) {
+    if (!confirm('Eliminare questo ordine?')) return;
+    const db = getShopDB();
+    db.orders = db.orders.filter(function(o) { return o.id !== orderId; });
+    saveShopDB(db);
+    loadShopOrders();
+}
+
+// ============================================
+// GLOBAL FUNCTIONS
+// ============================================
+window.showShopTab = showShopTab;
+window.showTab = showTab;
+window.createShopClient = createShopClient;
+window.deleteShopClient = deleteShopClient;
+window.openShopUploadWidget = openShopUploadWidget;
+window.saveShopClientPhotos = saveShopClientPhotos;
+window.uploadShopProductImage = uploadShopProductImage;
+window.saveShopProduct = saveShopProduct;
+window.editShopProduct = editShopProduct;
+window.deleteShopProduct = deleteShopProduct;
+window.clearShopProductForm = clearShopProductForm;
+window.copyShopLink = copyShopLink;
+window.copyShopClientCode = copyShopClientCode;
+window.copyShopLinkForClient = copyShopLinkForClient;
+window.backupShopData = backupShopData;
+window.restoreShopData = restoreShopData;
+window.exportShopOrdersPDF = exportShopOrdersPDF;
+window.downloadShopOrderPDF = downloadShopOrderPDF;
+window.downloadShopOrderGru = downloadShopOrderGru;
+window.markShopOrderDone = markShopOrderDone;
+window.deleteShopOrder = deleteShopOrder;
+window.doLogout = doLogout;
+
+// ============================================
+// INIT
+// ============================================
+checkLoginStatus();
+console.log('✅ Admin Negozio caricato con successo!');
+</script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G&L Studio - Negozio Cliente</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<style>
+.login-section{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px}
+.login-container{background:#fff;padding:40px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:500px;width:100%;text-align:center}
+.login-container h1{color:#2c3e50;margin-bottom:10px}
+.login-container p{color:#666;margin-bottom:30px}
+.error-message{color:#e74c3c;margin-top:15px;font-weight:600}
+.client-view{padding:20px;max-width:1400px;margin:0 auto}
+.success-screen{text-align:center;padding:50px 30px;background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.1);max-width:700px;margin:40px auto}
+.success-icon{font-size:90px;color:#27ae60;margin-bottom:15px;animation:bounceIn 0.6s}
+@keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.success-screen h2{color:#2c3e50;margin-bottom:15px;font-size:28px}
+.success-screen .thanks-message{font-size:18px;color:#555;margin-bottom:20px;line-height:1.6}
+.success-screen .order-summary{background:#e8f4fd;padding:20px;border-radius:10px;margin:20px 0;text-align:left}
+.success-screen .order-summary h3{color:#2980b9;margin-bottom:10px}
+.success-screen .order-summary p{margin:5px 0;font-size:14px}
+.success-screen .contact-info{background:#fff3cd;padding:20px;border-radius:10px;margin:20px 0;text-align:left;border-left:4px solid #f39c12}
+.success-screen .contact-info h3{color:#d68910;margin-bottom:10px}
+.success-screen .contact-info p{margin:5px 0;font-size:14px}
+.success-screen .paypal-section{background:#f0f8ff;padding:25px;border-radius:10px;margin:20px 0;border:2px solid #0070ba}
+.success-screen .paypal-section h3{color:#0070ba;margin-bottom:15px}
+.success-screen .paypal-section .paypal-btn{display:inline-block;background:#0070ba;color:#fff;padding:15px 40px;border-radius:25px;text-decoration:none;font-weight:bold;font-size:18px;margin:10px;transition:all .3s}
+.success-screen .paypal-section .paypal-btn:hover{background:#005ea6;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,112,186,.4)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN CLIENTE -->
+<div id="loginSection" class="login-section">
+<div class="login-container">
+<h1>🛍️ Negozio Online G&L Studio</h1>
+<p>Inserisci il tuo codice cliente per accedere</p>
+<form id="clientLoginForm">
+<div class="form-group">
+<label>Codice Cliente:</label>
+<input type="text" id="clientCode" placeholder="Es: GL-ABC123" required>
+</div>
+<button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:16px"> Accedi al Negozio</button>
+</form>
+<div id="loginError" class="error-message"></div>
+<p style="margin-top:20px;font-size:14px;color:#666">Non hai un codice? <a href="mailto:weddinggel@aruba.it" style="color:#667eea">Contattaci</a></p>
+<p style="margin-top:15px"><a href="index.html" style="color:#667eea">← Torna alla pagina iniziale</a></p>
+</div>
+</div>
+
+<!-- CLIENT VIEW -->
+<div id="clientSection" style="display:none">
+<header class="main-header">
+<h1>🛍️ Benvenuto <span id="clientWelcomeName"></span></h1>
+<p>Le tue foto sono organizzate per cartelle. Clicca su una foto per scegliere il prodotto!</p>
+</header>
+<div class="client-view">
+<div class="panel">
+<h2> Le Tue Foto - Organizzate per Cartelle</h2>
+<div class="info-box">
+<strong>ℹ️ Come ordinare:</strong><br>
+1. Sfoglia le foto organizzate per cartelle<br>
+2. Clicca su una foto che ti piace<br>
+3. Scegli il prodotto<br>
+4. Clicca "Aggiungi al carrello"<br>
+5. Completa l'ordine dal carrello
+</div>
+<div id="clientAlbumsContainer"></div>
+</div>
+<div class="panel">
+<h2>🛒 Carrello (<span id="cartCount">0</span>)</h2>
+<button class="btn btn-danger btn-sm" onclick="clearCart()">🗑️ Svuota</button>
+<div id="cartItems" style="margin-top:15px"></div>
+<div class="cart-total">Totale: € <span id="cartTotal">0.00</span></div>
+<div class="cart-info-box">
+<strong>📍 Ritiro Prodotti:</strong><br>
+Il ritiro dei prodotti avviene presso il nostro Studio.<br>
+⚠️ Eventuali spedizioni sono a carico del cliente.<br>
+<div class="studio-address">
+<strong>G&L Studio</strong><br>
+Via Ciarrocco, 21 – Canicattì (AG)<br>
+Tel: 3206337370 - 3669381103<br>
+Email: weddinggel@aruba.it
+</div>
+</div>
+<button class="btn btn-success" onclick="completeOrder()" style="width:100%;padding:15px;font-size:18px;margin-top:15px">✅ Completa Ordine</button>
+</div>
+</div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="productModal" class="shop-modal-overlay">
+<div class="shop-modal-content">
+<div class="shop-modal-header">
+<h2>🛒 Scegli il Prodotto per questa Foto</h2>
+<button class="shop-modal-close" onclick="closeProductModal()">&times;</button>
+</div>
+<div class="shop-modal-body">
+<div class="photo-preview-large">
+<img id="modalPhotoPreview" src="" alt="Foto">
+</div>
+<div id="productsByCategory"></div>
+</div>
+</div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div id="successScreen" class="success-screen" style="display:none">
+<div class="success-icon">✅</div>
+<h2>Ordine Inviato con Successo!</h2>
+<p class="thanks-message">Grazie per aver scelto G&L Studio!<br>Il tuo ordine è stato registrato correttamente.</p>
+<div class="order-summary">
+<h3>📋 Riepilogo Ordine</h3>
+<p><strong>Numero Ordine:</strong> <span id="successOrderId"></span></p>
+<p><strong>Cliente:</strong> <span id="successClientName"></span></p>
+<p><strong>Totale:</strong> € <span id="successTotal"></span></p>
+<p><strong>Data:</strong> <span id="successDate"></span></p>
+</div>
+<div class="paypal-section">
+<h3>💳 Paga ora con PayPal</h3>
+<p>Clicca il pulsante per completare il pagamento in sicurezza:</p>
+<a id="paypalLink" href="#" target="_blank" class="paypal-btn">💳 Paga con PayPal</a>
+<p style="font-size:13px;color:#666;margin-top:10px">Verrai reindirizzato a PayPal per pagare l'importo di <strong>€ <span id="paypalAmount"></span></strong> all'indirizzo:<br><strong>mairaluigi@hotmail.it</strong></p>
+</div>
+<div class="contact-info">
+<h3> Contatta lo Studio</h3>
+<p><strong>Grazie per il tuo ordine!</strong></p>
+<p>Lo studio ti contatterà presto per:</p>
+<p>✅ Confermare la disponibilità dei prodotti</p>
+<p>✅ Concordare i tempi di consegna</p>
+<p>✅ Organizzare il ritiro in studio</p>
+<p style="margin-top:15px"><strong>Per informazioni immediate:</strong></p>
+<p>📞 Tel: 3206337370 - 3669381103</p>
+<p>📧 Email: weddinggel@aruba.it</p>
+<p>📍 Via Ciarrocco, 21 – Canicattì (AG)</p>
+<p style="margin-top:15px;font-size:13px;color:#666">⚠️ Eventuali spedizioni sono a carico del cliente.</p>
+</div>
+<button class="btn btn-primary" onclick="location.reload()" style="margin-top:20px">🔄 Torna all'inizio</button>
+</div>
+
+<script src="shop.js"></script>
+<script>
+let currentClient = null;
+let currentPhoto = null;
+let cart = [];
+
+document.getElementById('clientLoginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const code = document.getElementById('clientCode').value.trim().toUpperCase();
+    const db = getShopDB();
+    const client = db.clients.find(c => c.code.toUpperCase() === code);
+    if (!client) {
+        document.getElementById('loginError').textContent = '❌ Codice cliente non trovato!';
+        return;
+    }
+    currentClient = client;
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('clientSection').style.display = 'block';
+    document.getElementById('clientWelcomeName').textContent = client.name;
+    renderClientView();
+});
+
+function renderClientView() {
+    const container = document.getElementById('clientAlbumsContainer');
+    if (!currentClient || !currentClient.albums || currentClient.albums.length === 0) {
+        container.innerHTML = '<p style="color:#888;text-align:center;padding:40px">Nessuna foto disponibile. Contatta lo studio per caricare le tue foto.</p>';
+        return;
+    }
+    container.innerHTML = currentClient.albums.map(album => {
+        return '<div class="album-section"><h3>📁 ' + album.name + ' <span class="photo-count">' + (album.photos ? album.photos.length : 0) + ' foto</span></h3><div class="photo-grid">' + (album.photos || []).map(function(photo, idx) {
+            return '<div class="photo-card" onclick="openProductModal(\'' + photo.url + '\', \'' + photo.name + '\', \'' + album.name + '\')"><img src="' + photo.url + '" alt="' + photo.name + '"><div class="add-icon">+</div></div>';
+        }).join('') + '</div></div>';
+    }).join('');
+}
+
+function openProductModal(photoUrl, photoName, albumName) {
+    currentPhoto = { url: photoUrl, name: photoName, album: albumName };
+    document.getElementById('modalPhotoPreview').src = photoUrl;
+    const db = getShopDB();
+    const categories = ['stampa', 'tele', 'forex', 'gadget', 'plex'];
+    const catLabels = { stampa: '🖼️ Stampe', tele: '🖼️ Tele', forex: '🖼️ Forex', gadget: ' Gadget', plex: '🖼️ Plexiglass' };
+    let html = '';
+    categories.forEach(function(cat) {
+        const products = db.products.filter(function(p) { return p.category === cat; });
+        if (products.length > 0) {
+            html += '<div class="products-section"><h3>' + catLabels[cat] + '</h3><div class="product-grid">';
+            products.forEach(function(p) {
+                html += '<div class="product-card">' + (p.image ? '<img src="' + p.image + '" alt="' + p.name + '">' : '') + '<div class="name">' + p.name + '</div><div class="desc">' + (p.size || '') + '</div><div class="price">€ ' + p.price.toFixed(2) + '</div>' + (p.colors && p.colors.length ? '<div style="font-size:11px;color:#666">Colori: ' + p.colors.join(', ') + '</div>' : '') + '<button class="btn btn-success btn-sm" onclick="addToCart(' + p.id + ')" style="margin-top:10px;width:100%">🛒 Aggiungi</button></div>';
+            });
+            html += '</div></div>';
+        }
+    });
+    document.getElementById('productsByCategory').innerHTML = html || '<p style="color:#888;text-align:center;padding:20px">Nessun prodotto disponibile.</p>';
+    document.getElementById('productModal').classList.add('active');
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').classList.remove('active');
+}
+
+function addToCart(productId) {
+    const db = getShopDB();
+    const product = db.products.find(function(p) { return p.id === parseInt(productId); });
+    if (!product) return;
+    cart.push({
+        productId: product.id,
+        productName: product.name,
+        productCategory: product.category,
+        price: product.price,
+        size: product.size || '',
+        color: product.colors && product.colors.length > 0 ? product.colors[0] : '',
+        photoUrl: currentPhoto.url,
+        photoName: currentPhoto.name,
+        albumName: currentPhoto.album
+    });
+    updateCart();
+    closeProductModal();
+    alert('✅ Prodotto aggiunto al carrello!');
+}
+
+function updateCart() {
+    document.getElementById('cartCount').textContent = cart.length;
+    const total = cart.reduce(function(sum, item) { return sum + item.price; }, 0);
+    document.getElementById('cartTotal').textContent = total.toFixed(2);
+    const container = document.getElementById('cartItems');
+    if (cart.length === 0) {
+        container.innerHTML = '<p style="color:#888;text-align:center;padding:20px">Carrello vuoto</p>';
+        return;
+    }
+    container.innerHTML = cart.map(function(item, idx) {
+        return '<div class="cart-item"><img src="' + item.photoUrl + '" class="cart-item-img" alt=""><div class="cart-item-info"><strong>' + item.productName + '</strong><small> ' + item.albumName + ' • ' + item.photoName + '</small></div><div class="cart-item-price">€' + item.price.toFixed(2) + '</div><button class="cart-item-remove" onclick="removeFromCart(' + idx + ')">&times;</button></div>';
+    }).join('');
+}
+
+function removeFromCart(idx) {
+    cart.splice(idx, 1);
+    updateCart();
+}
+
+function clearCart() {
+    if (cart.length === 0) return;
+    if (!confirm('Svuotare il carrello?')) return;
+    cart = [];
+    updateCart();
+}
+
+function completeOrder() {
+    if (cart.length === 0) {
+        alert('Il carrello è vuoto!');
+        return;
+    }
+    if (!confirm('Confermi l\'ordine di ' + cart.length + ' prodotti per un totale di € ' + cart.reduce(function(sum, item) { return sum + item.price; }, 0).toFixed(2) + '?')) return;
+    
+    const db = getShopDB();
+    const orderId = 'ORD-' + Date.now();
+    const total = cart.reduce(function(sum, item) { return sum + item.price; }, 0);
+    const order = {
+        id: orderId,
+        date: new Date().toLocaleString('it-IT'),
+        clientName: currentClient.name,
+        clientCode: currentClient.code,
+        items: cart,
+        total: total,
+        status: 'pending'
+    };
+    db.orders.push(order);
+    saveShopDB(db);
+    
+    // ✅ PDF PROFESSIONALE PER LO STUDIO (grafica migliorata)
+    generateProfessionalPDF(order);
+    
+    // ✅ LINK PAYPAL CON LA TUA EMAIL
+    const paypalEmail = 'mairaluigi@hotmail.it';
+    const paypalUrl = 'https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=' + encodeURIComponent(paypalEmail) + '&currency_code=EUR&amount=' + total.toFixed(2) + '&item_name=Ordine_G_Studio_' + orderId;
+    
+    // ✅ Mostra schermata successo (SOLO MESSAGGIO RINGRAZIAMENTO)
+    document.getElementById('clientSection').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+    document.getElementById('successOrderId').textContent = orderId;
+    document.getElementById('successClientName').textContent = currentClient.name;
+    document.getElementById('successTotal').textContent = total.toFixed(2);
+    document.getElementById('successDate').textContent = order.date;
+    document.getElementById('paypalAmount').textContent = total.toFixed(2);
+    document.getElementById('paypalLink').href = paypalUrl;
+    
+    cart = [];
+}
+
+// ============================================
+// PDF PROFESSIONALE CON GRAFICA MIGLIORATA
+// ============================================
+function generateProfessionalPDF(order) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    // Colori
+    const colors = {
+        primary: [102, 126, 234],
+        secondary: [118, 75, 162],
+        accent: [231, 76, 60],
+        success: [39, 174, 96],
+        gray: [100, 100, 100],
+        lightGray: [240, 240, 240]
+    };
+    
+    // Header colorato
+    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.rect(0, 0, 210, 50, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(28);
+    doc.setFont('helvetica', 'bold');
+    doc.text('G&L Studio', 105, 22, { align: 'center' });
+    
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Negozio Online - Ordine di Acquisto', 105, 30, { align: 'center' });
+    
+    doc.setFontSize(11);
+    doc.text('Via Ciarrocco 21, Canicattì (AG)', 105, 38, { align: 'center' });
+    doc.text('Tel: 3206337370 - 3669381103 | Email: weddinggel@aruba.it', 105, 44, { align: 'center' });
+    
+    // Informazioni ordine
+    doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DETTAGLI ORDINE', 20, 65);
+    
+    doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
+    doc.roundedRect(20, 70, 170, 35, 3, 3, 'F');
+    
+    doc.setTextColor(50, 50, 50);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Numero Ordine:', 25, 78);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.id, 65, 78);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Data:', 120, 78);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.date, 140, 78);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Cliente:', 25, 86);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.clientName, 65, 86);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Codice:', 120, 86);
+    doc.setFont('helvetica', 'normal');
+    doc.text(order.clientCode, 140, 86);
+    
+    // Tabella prodotti
+    doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PRODOTTI ORDINATI', 20, 120);
+    
+    const tableHeader = [[
+        { content: 'N.', styles: { fillColor: colors.primary, font: 'helvetica', fontStyle: 'bold', fontSize: 11, halign: 'center' } },
+        { content: 'Prodotto', styles: { fillColor: colors.primary, font: 'helvetica', fontStyle: 'bold', fontSize: 11 } },
+        { content: 'Album', styles: { fillColor: colors.primary, font: 'helvetica', fontStyle: 'bold', fontSize: 11, halign: 'center' } },
+        { content: 'Dettagli', styles: { fillColor: colors.primary, font: 'helvetica', fontStyle: 'bold', fontSize: 11 } },
+        { content: 'Prezzo', styles: { fillColor: colors.primary, font: 'helvetica', fontStyle: 'bold', fontSize: 11, halign: 'right' } }
+    ]];
+    
+    const tableBody = order.items.map(function(item, i) {
+        const details = [];
+        if (item.size) details.push('Misura: ' + item.size);
+        if (item.color) details.push('Colore: ' + item.color);
+        if (item.photoName) details.push('Foto: ' + item.photoName);
+        
+        return [
+            { content: (i + 1).toString(), styles: { halign: 'center', fontSize: 10 } },
+            { content: item.productName + '\n[' + getShopCategoryLabel(item.productCategory) + ']', styles: { fontSize: 10 } },
+            { content: item.albumName || '-', styles: { halign: 'center', fontSize: 10 } },
+            { content: details.join('\n'), styles: { fontSize: 9 } },
+            { content: '€ ' + item.price.toFixed(2), styles: { halign: 'right', font: 'helvetica', fontStyle: 'bold', fontSize: 11 } }
+        ];
+    });
+    
+    doc.autoTable({
+        head: tableHeader,
+        body: tableBody,
+        startY: 125,
+        theme: 'grid',
+        headStyles: { fillColor: colors.primary, textColor: 255, font: 'helvetica', fontStyle: 'bold', fontSize: 11, cellPadding: 5 },
+        bodyStyles: { fontSize: 10, textColor: 50, cellPadding: 4 },
+        columnStyles: {
+            0: { cellWidth: 15, halign: 'center' },
+            1: { cellWidth: 50 },
+            2: { cellWidth: 30, halign: 'center' },
+            3: { cellWidth: 65 },
+            4: { cellWidth: 30, halign: 'right' }
+        },
+        alternateRowStyles: { fillColor: [248, 248, 248] },
+        margin: { left: 20, right: 20 },
+        didParseCell: function(data) {
+            if (data.section === 'head') {
+                data.cell.styles.textColor = [255, 255, 255];
+            }
+        },
+        didDrawPage: function(data) {
+            doc.setFontSize(9);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Pagina ' + doc.internal.getCurrentPageInfo().pageNumber + ' di ' + doc.getNumberOfPages(), 190, 280, { align: 'right' });
+        }
+    });
+    
+    const finalY = doc.autoTable.previousFinalY + 10;
+    
+    // Totale
+    doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.roundedRect(20, finalY, 170, 25, 3, 3, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TOTALE ORDINE:', 120, finalY + 10);
+    doc.setFontSize(20);
+    doc.text('€ ' + order.total.toFixed(2), 170, finalY + 10, { align: 'right' });
+    
+    // Info ritiro
+    const infoY = finalY + 45;
+    
+    doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('📍 RITIRO PRODOTTI', 20, infoY);
+    
+    doc.setFillColor(255, 243, 205);
+    doc.roundedRect(20, infoY + 5, 170, 45, 3, 3, 'F');
+    
+    doc.setTextColor(133, 100, 4);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Il ritiro avviene presso il nostro Studio:', 25, infoY + 13);
+    doc.text('Via Ciarrocco, 21 – Canicattì (AG)', 25, infoY + 21);
+    doc.text('Tel: 3206337370 - 3669381103', 25, infoY + 29);
+    doc.text('Email: weddinggel@aruba.it', 25, infoY + 37);
+    doc.setFont('helvetica', 'italic');
+    doc.text('⚠️ Eventuali spedizioni sono a carico del cliente.', 25, infoY + 45);
+    
+    // Footer
+    const footerY = 270;
+    doc.setDrawColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.setLineWidth(0.5);
+    doc.line(20, footerY, 190, footerY);
+    
+    doc.setTextColor(150, 150, 150);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'italic');
+    doc.text('G&L Studio - Tutti i diritti riservati', 105, footerY + 7, { align: 'center' });
+    doc.text('Documento generato automaticamente il ' + new Date().toLocaleString('it-IT'), 105, footerY + 12, { align: 'center' });
+    
+    // Salva PDF
+    doc.save('ORDINE_' + order.id + '.pdf');
+}
+
+function getShopCategoryLabel(cat) {
+    const labels = {
+        stampa: '🖼️ Stampa',
+        gadget: '🎁 Gadget',
+        tele: '🖼️ Tela',
+        forex: '🖼️ Forex',
+        plex: '🖼️ Plexiglass'
+    };
+    return labels[cat] || cat;
+}
+
+document.getElementById('productModal').addEventListener('click', function(e) {
+    if (e.target === this) closeProductModal();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selezione Foto - G&L Studio</title>
+<link rel="stylesheet" href="selezione.css">
+</head>
+<body>
+<div class="container">
+<header class="header">
+<div class="logo">📸 G&L Studio</div>
+<div class="counter">
+<span class="selected-count">0</span> / <span class="total-count">0</span> foto selezionate
+</div>
+<button class="btn-submit" onclick="inviaSelezione()">✅ Invia Selezione</button>
+</header>
+<div class="gallery-container">
+<div id="photoGallery" class="photo-gallery"></div>
+</div>
+<div class="mobile-nav">
+<button class="nav-btn" onclick="prevPhoto()">◀ Precedente</button>
+<span class="photo-index">1 / <span class="total-photos">0</span></span>
+<button class="nav-btn" onclick="nextPhoto()">Successiva ▶</button>
+</div>
+<div id="photoModal" class="photo-modal">
+<div class="modal-content">
+<button class="modal-close" onclick="closeModal()">×</button>
+<img id="modalImage" src="" alt="Foto">
+<button class="modal-nav prev" onclick="changePhoto(-1)">◀</button>
+<button class="modal-nav next" onclick="changePhoto(1)">▶</button>
+<button class="modal-heart" onclick="toggleHeart()">❤️</button>
+</div>
+</div>
+<div id="successMessage" class="success-message" style="display:none">
+<div class="success-content">
+<h2>✅ Selezione Inviata!</h2>
+<p>Grazie per aver selezionato le tue foto preferite.</p>
+<p>Lo studio le riceverà e ti contatterà presto.</p>
+<button onclick="location.reload()">Torna all'inizio</button>
+</div>
+</div>
+</div>
+<script src="selezione.js"></script>
+</body>
+</html>

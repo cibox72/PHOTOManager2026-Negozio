@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G&L Studio - Negozio Online</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.container{max-width:900px;width:100%}
+.header{text-align:center;color:#fff;margin-bottom:40px}
+.header h1{font-size:42px;margin-bottom:10px}
+.header p{font-size:18px;opacity:.9}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:30px}
+.card{background:#fff;border-radius:20px;padding:40px;text-align:center;text-decoration:none;color:inherit;transition:all .3s;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+.card-icon{font-size:80px;margin-bottom:20px}
+.card h2{color:#2c3e50;font-size:28px;margin-bottom:15px}
+.card p{color:#666;font-size:16px;line-height:1.6;margin-bottom:20px}
+.card .btn{display:inline-block;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:12px 30px;border-radius:25px;font-weight:600;font-size:16px}
+.card:nth-child(2) .btn{background:linear-gradient(135deg,#27ae60,#2ecc71)}
+.footer{text-align:center;color:#fff;margin-top:40px;opacity:.8;font-size:14px}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🛍️ G&L Studio - Negozio Online</h1>
+<p>Via Ciarrocco 21, Canicattì (AG) | Tel: 3206337370 - 3669381103</p>
+</div>
+<div class="cards">
+<a href="admin-negozio.html" class="card">
+<div class="card-icon">⚙️</div>
+<h2>Area Admin</h2>
+<p>Gestione clienti, prodotti, ordini, caricamento foto con album/cartelle</p>
+<div class="btn">Accedi come Admin →</div>
+</a>
+<a href="negozio-cliente.html" class="card">
+<div class="card-icon"></div>
+<h2>Area Cliente</h2>
+<p>Sfoglia le tue foto, scegli i prodotti e completa l'ordine</p>
+<div class="btn">Accedi come Cliente →</div>
+</a>
+</div>
+<div class="footer">
+<p>© 2026 G&L Studio - weddinggel@aruba.it</p>
+</div>
+</div>
+</body>
+</html>

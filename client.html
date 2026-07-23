@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galleria Cliente - G&L Studio</title>
+<link rel="stylesheet" href="client.css">
+</head>
+<body>
+<div class="container">
+<div class="auth-container">
+<div class="logo-container">
+<img src="https://via.placeholder.com/150x150.png?text=G%26L+Studio" alt="G&L Studio Logo">
+</div>
+<div id="loginSection" class="login-section">
+<h1> Accesso Galleria</h1>
+<form id="clientLoginForm">
+<div class="form-group">
+<label>Nome Utente:</label>
+<input type="text" id="username" required>
+</div>
+<div class="form-group">
+<label>Password:</label>
+<input type="password" id="password" required>
+</div>
+<button type="submit" class="btn-primary">Accedi</button>
+<div id="authError" class="error-message"></div>
+</form>
+</div>
+<div id="gallerySection" class="gallery-section" style="display:none">
+<h1>✅ GRAZIE PER LA FIDUCIA</h1>
+<p>Le tue foto sono pronte per essere scaricate.</p>
+<a id="galleryLink" href="#" class="gallery-btn" target="_blank">VAI A GALLERY - CLICCA QUI</a>
+</div>
+</div>
+</div>
+<script src="client.js"></script>
+</body>
+</html>
